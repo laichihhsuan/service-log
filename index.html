@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>苗栗縣建國國小資源班間接服務紀錄表</title>
+  <style>
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 1cm;
+      }
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+    }
+    input, select, textarea {
+      margin-bottom: 10px;
+      display: block;
+      width: 100%;
+      max-width: 500px;
+    }
+    table {
+      margin-top: 1rem;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #000;
+      padding: 8px;
+      text-align: left;
+    }
+    .btn {
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>苗栗縣建國國小資源班間接服務紀錄表</h2>
+
+  <label>週次
+    <select id="week">
+      <option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+<option value="10">10</option>
+<option value="11">11</option>
+<option value="12">12</option>
+<option value="13">13</option>
+<option value="14">14</option>
+<option value="15">15</option>
+<option value="16">16</option>
+<option value="17">17</option>
+<option value="18">18</option>
+<option value="19">19</option>
+<option value="20">20</option>
+<option value="21">21</option>
+    </select>
+  </label>
+  <label>服務日期
+    <input id="date" type="date" />
+    <span id="weekday"></span>
+  </label>
+  <label>開始時間 <input id="startTime" type="time" /></label>
+  <label>結束時間 <input id="endTime" type="time" /></label>
+  <label>學生姓名 <input id="studentName" type="text" /></label>
+  <label>對象類別
+    <select id="targetType">
+      <option>學生本人</option>
+      <option>家長</option>
+      <option>導師</option>
+      <option>任課教師</option>
+      <option>兼輔教師</option>
+      <option>專輔教師</option>
+      <option>心理師</option>
+      <option>治療師</option>
+      <option>巡迴輔導教師</option>
+      <option>其他</option>
+    </select>
+  </label>
+  <label>對象姓名／稱謂 <input id="targetName" type="text" /></label>
+  <label>服務方式／內容
+    <select id="serviceType">
+      <option>1-1 個案資料的建立與管理</option>
+      <option>1-2 學習情境的評估與適配</option>
+      <option>1-3 輔具的申請與訓練</option>
+      <option>1-4 專業團隊服務的規劃與合作</option>
+      <option>1-5 巡迴輔導教師的規劃與合作</option>
+      <option>1-6 同儕支持服務的建立與訓練</option>
+      <option>1-7 轉銜輔導與服務</option>
+      <option>2-1 個別晤談</option>
+      <option>2-2 適性輔導</option>
+      <option>2-3 學習指導</option>
+      <option>3-1 特殊教育諮詢服務</option>
+      <option>3-2 課程調整諮詢服務</option>
+      <option>4-1 入班觀察與協助</option>
+      <option>4-2 行為功能介入方案實施</option>
+      <option>5-1 學生助理人員職責說明</option>
+      <option>5-2 突發事件的協助與處理</option>
+      <option>5-3 特殊教育宣導</option>
+    </select>
+  </label>
+  <label>地點 <input id="location" type="text" /></label>
+  <label>服務紀錄簡述 <textarea id="note" rows="4"></textarea></label>
+<button onclick="addRecord()">新增紀錄</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>週次</th><th>日期</th><th>星期</th><th>起</th><th>迄</th><th>時間(分)</th>
+        <th>學生姓名</th><th>對象類別</th><th>對象姓名</th><th>服務方式</th><th>地點</th><th>紀錄簡述</th>
+        <th>節數</th><th>月份</th>
+      </tr>
+    </thead>
+    <tbody id="recordTableBody"></tbody>
+  </table>
+
+  <button class="btn" onclick="window.print()">列印</button>
+
+  <script>
+    const records = JSON.parse(localStorage.getItem("records") || "[]");
+
+    function saveRecords() {
+      localStorage.setItem("records", JSON.stringify(records));
+    }
+
+    function addRecord() {
+      const week = document.getElementById("week").value;
+      const date = document.getElementById("date").value;
+      const start = document.getElementById("startTime").value;
+      const end = document.getElementById("endTime").value;
+      const studentName = document.getElementById("studentName").value;
+      const targetType = document.getElementById("targetType").value;
+      const targetName = document.getElementById("targetName").value;
+      const serviceType = document.getElementById("serviceType").value;
+      const location = document.getElementById("location").value;
+      const note = document.getElementById("note").value;
+
+      const startTime = new Date(`1970-01-01T${start}`);
+      const endTime = new Date(`1970-01-01T${end}`);
+      const minutes = (endTime - startTime) / 60000;
+      const sessions = Math.ceil(minutes / 40);
+      const weekday = getWeekdayStr(date);
+      const month = new Date(date).getMonth() + 1;
+
+      const record = {
+        week, date, weekday, start, end, minutes, sessions,
+        studentName, targetType, targetName, serviceType, location, note, month
+      };
+
+      records.push(record);
+      saveRecords();
+      renderRecords();
+      calculateSessionStats();
+    }
+
+    function renderRecords() {
+      const tbody = document.getElementById("recordTableBody");
+      tbody.innerHTML = "";
+      records.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.week}</td><td>${r.date}</td><td>${r.weekday}</td>
+          <td>${r.start}</td><td>${r.end}</td><td>${r.minutes}</td>
+          <td>${r.studentName}</td><td>${r.targetType}</td><td>${r.targetName}</td>
+          <td>${r.serviceType}</td><td>${r.location}</td><td>${r.note}</td>
+          <td>${r.sessions}</td><td>${r.month}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    renderRecords();
+    calculateSessionStats();
+
+    const dateInput = document.getElementById('date');
+    const weekdaySpan = document.getElementById('weekday');
+    const tableBody = document.getElementById('recordTableBody');
+
+    function getWeekdayStr(dateStr) {
+      const days = ['日','一','二','三','四','五','六'];
+      const date = new Date(dateStr);
+      return '星期' + days[date.getDay()];
+    }
+
+    dateInput.addEventListener('change', () => {
+      const value = dateInput.value;
+      if (value) {
+        weekdaySpan.textContent = getWeekdayStr(value);
+      }
+    });
+  
+    // 自動計算節數、每月累積與學期統計
+    const weekInput = document.getElementById('semesterWeeks');
+    const semesterTotal = document.getElementById('semesterTotal');
+    const semesterActual = document.getElementById('actualSessions');
+    const monthlyList = document.getElementById('monthlySummaryList');
+
+    // 模擬資料儲存陣列
+    const records = [];
+
+    function calculateSessionStats() {
+      const sessionMap = {};
+      let totalSessions = 0;
+
+      records.forEach(r => {
+        const month = new Date(r.date).getMonth() + 1;
+        sessionMap[month] = (sessionMap[month] || 0) + r.sessions;
+        totalSessions += r.sessions;
+      });
+
+      monthlyList.innerHTML = '';
+      for (let i = 1; i <= 12; i++) {
+        if (sessionMap[i]) {
+          const li = document.createElement('li');
+          li.textContent = `${i} 月：${sessionMap[i]} 節`;
+          monthlyList.appendChild(li);
+        }
+      }
+
+      semesterActual.textContent = totalSessions;
+    }
+
+    function updateExpectedSessions() {
+      const weeks = parseInt(weekInput.value || '0', 10);
+      const expected = weeks * 2;
+      semesterTotal.textContent = `本學期應服務節數：${expected} 節`;
+    }
+
+    weekInput.addEventListener('input', updateExpectedSessions);
+    updateExpectedSessions();
+
+    // 暫時模擬新增一筆資料，您可接續接到實際資料輸入按鈕
+    records.push({ date: "2025-04-01", sessions: 2 });
+    records.push({ date: "2025-04-08", sessions: 2 });
+    records.push({ date: "2025-05-01", sessions: 1 });
+
+    calculateSessionStats();
+    </script>
+
+  <div style="page-break-before: always; margin-top: 3cm;">
+    <h3 style="margin-bottom: 2cm;">簽章區</h3>
+    <table style="width: 100%; font-size: 1.1em;">
+      <tr>
+        <td style="width: 50%; text-align: center;">承辦人簽章：</td>
+        <td style="width: 50%; text-align: center;">單位主管簽章：</td>
+      </tr>
+      <tr>
+        <td style="height: 100px;"></td>
+        <td></td>
+      </tr>
+    </table>
+  </div>
+
+  <h3>本學期服務節數統計</h3>
+  <label>本學期週數（最多 21 週）
+    <input type="number" id="semesterWeeks" value="21" min="1" max="21" />
+  </label>
+  <p id="semesterTotal">本學期應服務節數：42 節</p>
+  <p id="semesterActual">本學期已服務節數累計：<span id="actualSessions">0</span> 節</p>
+
+  <h4>依月份統計服務節數</h4>
+  <ul id="monthlySummaryList"></ul>
+
+  <div style="page-break-before: always; margin-top: 3cm;">
+    <h3 style="margin-bottom: 2cm;">簽章區</h3>
+    <table style="width: 100%; font-size: 1.1em;">
+      <tr>
+        <td style="width: 50%; text-align: center;">承辦人簽章：</td>
+        <td style="width: 50%; text-align: center;">單位主管簽章：</td>
+      </tr>
+      <tr>
+        <td style="height: 100px;"></td>
+        <td></td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
+
+</html>
+
+</html>
